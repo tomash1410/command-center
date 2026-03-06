@@ -8,7 +8,7 @@ interface SidebarProps {
 }
 
 const tabs: { id: Tab; label: string; icon: string }[] = [
-  { id: "commands", label: "Commands", icon: "⚡" },
+  { id: "commands", label: "Automations", icon: "⚡" },
   { id: "todo", label: "To-do", icon: "✓" },
   { id: "time-aliases", label: "Time Aliases", icon: "⏱" },
 ];

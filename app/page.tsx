@@ -172,7 +172,7 @@ function TimeAliasesTab() {
 }
 
 const tabTitles: Record<Tab, string> = {
-  commands: "Commands",
+  commands: "Automations",
   todo: "To-do",
   "time-aliases": "Time Aliases",
 };
