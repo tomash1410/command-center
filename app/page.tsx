@@ -81,15 +81,15 @@ export default function Home() {
     <div className="flex h-screen overflow-hidden">
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       <main className="flex flex-1 flex-col overflow-hidden">
-        <header className="shrink-0 border-b border-zinc-800 px-8 py-5">
-          <h1 className="text-xl font-semibold text-zinc-100">{tabTitles[activeTab]}</h1>
+        <header className="shrink-0 border-b border-zinc-800 px-4 py-4 md:px-8 md:py-5">
+          <h1 className="text-lg font-semibold text-zinc-100 md:text-xl">{tabTitles[activeTab]}</h1>
         </header>
         {activeTab === "commands" ? (
-          <div className="flex flex-1 overflow-hidden p-6">
+          <div className="flex flex-1 overflow-hidden p-3 pb-20 md:p-6 md:pb-6">
             <AutomationsTab />
           </div>
         ) : (
-          <div className="overflow-y-auto p-8">
+          <div className="overflow-y-auto p-4 pb-24 md:p-8 md:pb-8">
             {activeTab === "todo" && <TodoTab />}
             {activeTab === "time-aliases" && <TimeLogTab />}
           </div>
