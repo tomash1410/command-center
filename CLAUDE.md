@@ -82,6 +82,7 @@ GOOGLE_SHEET_ID=1GnvIPn1lppwNNcCs0pK8pI7_H8jOYCl9ZZP3BoQssyM
 ## Jira field reference
 - `customfield_10268` — Last Comment Author
 - Internal team members (not customers): Tom, Bartek, Pawel, Rachel, Amadeusz, Kacper, Dafydd
+- Note: Paweł's name may appear with Polish characters (Paweł) in Jira — always check both "Pawel" and "Paweł" in any name matching logic
 - "Needs response" = last commenter is NOT one of the above (i.e. `accountType:customer`)
 - "Gone quiet" = no update in 7+ days, exclude statuses: "Waiting for 3rd Party", "Open but Blocked"
 

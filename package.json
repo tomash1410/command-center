@@ -3,12 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
+    "@tailwindcss/typography": "^0.5.19",
+    "@vercel/kv": "^3.0.0",
+    "debug": "^4.4.3",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"
