@@ -166,7 +166,9 @@ export async function GET() {
     const now = Date.now();
     const totalMs = sprintEnd.getTime() - sprintStart.getTime();
     const elapsedMs = now - sprintStart.getTime();
-    const daysRemaining = Math.max(0, Math.floor((sprintEnd.getTime() - now) / (1000 * 60 * 60 * 24)));
+    const todayMidnight = new Date(); todayMidnight.setHours(0, 0, 0, 0);
+    const endMidnight = new Date(sprintEnd); endMidnight.setHours(0, 0, 0, 0);
+    const daysRemaining = Math.max(0, Math.round((endMidnight.getTime() - todayMidnight.getTime()) / (1000 * 60 * 60 * 24)));
     const percentElapsed = Math.min(100, Math.max(0, Math.round((elapsedMs / totalMs) * 100)));
 
     // 3. Get sprint issues with changelog
