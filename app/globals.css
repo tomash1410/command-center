@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* ── Dark mode: triggered by .dark class on <html> ───────────────────────── */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Default (dark) theme variables ─────────────────────────────────────── */
 :root {
   --background: #09090b;
   --foreground: #f4f4f5;
@@ -17,4 +21,38 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* ── Light mode: remap zinc palette + update body vars ───────────────────── */
+/*
+  All bg-zinc-*, text-zinc-*, border-zinc-* utilities reference CSS variables.
+  Overriding them here in :root:not(.dark) flips the entire structural palette
+  without touching component code.
+
+  Mapping (dark → light):
+    zinc-950 → slate-100  (page background)
+    zinc-900 → white      (cards, sidebar)
+    zinc-800 → slate-200  (surfaces, inputs, borders)
+    zinc-700 → slate-300  (subtle borders)
+    zinc-600 → slate-400  (very muted text)
+    zinc-500 → slate-400  (muted / section headers)
+    zinc-400 → slate-500  (secondary text)
+    zinc-300 → slate-700  (body text)
+    zinc-200 → slate-700  (slightly brighter body text)
+    zinc-100 → slate-900  (headings / primary text)
+*/
+:root:not(.dark) {
+  --background: theme(--color-slate-100);
+  --foreground: theme(--color-slate-900);
+
+  --color-zinc-100: var(--color-slate-900);
+  --color-zinc-200: var(--color-slate-700);
+  --color-zinc-300: var(--color-slate-700);
+  --color-zinc-400: var(--color-slate-500);
+  --color-zinc-500: var(--color-slate-400);
+  --color-zinc-600: var(--color-slate-400);
+  --color-zinc-700: var(--color-slate-300);
+  --color-zinc-800: var(--color-slate-200);
+  --color-zinc-900: oklch(1 0 0);
+  --color-zinc-950: var(--color-slate-100);
 }

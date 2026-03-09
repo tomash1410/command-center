@@ -5,7 +5,6 @@ import Sidebar from "@/components/Sidebar";
 import TimeLogTab from "@/components/TimeLogTab";
 import AutomationsTab from "@/components/AutomationsTab";
 import TodayTab from "@/components/TodayTab";
-
 type Tab = "commands" | "today" | "todo" | "time-aliases";
 
 

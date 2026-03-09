@@ -1,4 +1,7 @@
 import { createSign } from "crypto";
+import { kv } from "@vercel/kv";
+
+const SHEETS_KV_KEY = "sheets-last-run";
 
 const SPREADSHEET_ID = "1GnvIPn1lppwNNcCs0pK8pI7_H8jOYCl9ZZP3BoQssyM";
 
@@ -251,10 +254,27 @@ export async function POST() {
 
   await sheetsPost(":batchUpdate", token, { requests });
 
-  return Response.json({ success: true, dateRange, row });
+  const payload = { success: true, dateRange, row, writtenAt: new Date().toISOString() };
+  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+    try { await kv.set(SHEETS_KV_KEY, payload); } catch {}
+  }
+  return Response.json(payload);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("[weekly-update] Unhandled error:", message);
     return Response.json({ error: message }, { status: 500 });
+  }
+}
+
+export async function GET() {
+  if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
+    return Response.json({ error: "KV not configured" }, { status: 404 });
+  }
+  try {
+    const stored = await kv.get(SHEETS_KV_KEY);
+    if (stored) return Response.json(stored);
+    return Response.json({ error: "No data" }, { status: 404 });
+  } catch {
+    return Response.json({ error: "KV read failed" }, { status: 500 });
   }
 }

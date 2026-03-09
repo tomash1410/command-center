@@ -49,10 +49,10 @@ function isTeams(location: string): boolean {
 
 function SectionHeader({ label, timestamp }: { label: string; timestamp?: Date | null }) {
   return (
-    <div className="mb-3 flex items-center justify-between">
-      <h3 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">{label}</h3>
+    <div className="mb-4 flex items-center justify-between">
+      <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-400">{label}</h3>
       {timestamp && (
-        <span className="text-xs text-zinc-700">
+        <span className="text-xs text-zinc-600">
           Updated {timestamp.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
         </span>
       )}
@@ -80,7 +80,7 @@ function MeetingCard({ event }: { event: CalendarEvent }) {
         <p className="truncate text-sm font-medium text-zinc-100">{event.title}</p>
         <div className="mt-1 flex flex-wrap items-center gap-2">
           {teams && (
-            <span className="rounded border border-indigo-800 bg-indigo-900/50 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-300">
+            <span className="rounded border border-indigo-300 bg-indigo-100/60 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-700 dark:border-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300">
               Teams
             </span>
           )}
@@ -229,12 +229,12 @@ export default function TodayTab() {
   }
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col">
 
       {/* ── TODAY'S MEETINGS ─────────────────────────────────────────────── */}
-      <section>
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">Today&apos;s Meetings</h3>
+      <section className="pb-8">
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-400">Today&apos;s Meetings</h3>
           <div className="flex items-center gap-3">
             {lastUpdated && (
               <span className="text-xs text-zinc-700">
@@ -270,7 +270,7 @@ export default function TodayTab() {
       </section>
 
       {/* ── UNREAD EMAILS ────────────────────────────────────────────────── */}
-      <section>
+      <section className="border-t border-zinc-800 pt-8">
         <SectionHeader label="Unread Emails" />
         {mailError ? (
           <p className="text-sm text-amber-600">Could not reach bridge — is it running?</p>
@@ -296,30 +296,24 @@ export default function TodayTab() {
 
             {/* Jira notifications — muted, collapsible */}
             {jiraEmails.length > 0 && (
-              <div>
-                <p className="mb-2 text-xs font-medium text-zinc-700">
-                  Jira notifications ({jiraEmails.length})
-                </p>
+              <div className="mt-5 border-t border-zinc-800/60 pt-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-zinc-600">
+                    Jira ({jiraEmails.length})
+                  </p>
+                  {jiraEmails.length > JIRA_LIMIT && (
+                    <button
+                      onClick={() => setShowAllJira((v) => !v)}
+                      className="text-xs text-zinc-600 transition-colors hover:text-zinc-400"
+                    >
+                      {showAllJira ? "Show less" : `Show all ${jiraEmails.length}`}
+                    </button>
+                  )}
+                </div>
                 <div className="flex flex-col gap-1">
                   {visibleJira.map((email, i) => (
                     <EmailCard key={i} email={email} muted />
                   ))}
-                  {!showAllJira && jiraHidden > 0 && (
-                    <button
-                      onClick={() => setShowAllJira(true)}
-                      className="mt-1 text-left text-xs text-zinc-600 transition-colors hover:text-zinc-400"
-                    >
-                      + {jiraHidden} more Jira notification{jiraHidden !== 1 ? "s" : ""}
-                    </button>
-                  )}
-                  {showAllJira && jiraEmails.length > JIRA_LIMIT && (
-                    <button
-                      onClick={() => setShowAllJira(false)}
-                      className="mt-1 text-left text-xs text-zinc-600 transition-colors hover:text-zinc-400"
-                    >
-                      Show less
-                    </button>
-                  )}
                 </div>
               </div>
             )}

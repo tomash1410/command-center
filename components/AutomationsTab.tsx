@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown";
 import WeeklyDigest from "@/components/WeeklyDigest";
+import { SprintContent } from "@/components/SprintStatusTab";
+import type { SprintStatusResponse } from "@/components/SprintStatusTab";
 
 // ── Triage ────────────────────────────────────────────────────────────────────
 
@@ -29,6 +32,19 @@ function ageLabel(dateStr: string): string {
   return `${days} days ago`;
 }
 
+function statusBadgeClass(status: string): string {
+  const s = status.toLowerCase();
+  if (s.includes("assigned to support")) return "bg-blue-100/60 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300";
+  if (s.includes("assigned to customer")) return "bg-amber-100/60 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300";
+  if (s.includes("staging") || s.includes("uat")) return "bg-purple-100/60 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300";
+  if (s.includes("backlog")) return "bg-zinc-700 text-zinc-300";
+  if (s.includes("3rd party") || s.includes("waiting for")) return "bg-orange-100/60 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300";
+  if (s.includes("under investigation")) return "bg-red-100/60 text-red-700 dark:bg-red-900/50 dark:text-red-300";
+  if (s.includes("on hold") || s.includes("flagged")) return "bg-yellow-100/60 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300";
+  if (s.includes("in sprint") || s.includes("development")) return "bg-emerald-100/60 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300";
+  return "bg-zinc-800 text-zinc-400";
+}
+
 function TicketTable({ tickets }: { tickets: Ticket[] }) {
   if (tickets.length === 0) return <p className="py-3 text-sm text-zinc-600">None.</p>;
   return (
@@ -50,7 +66,7 @@ function TicketTable({ tickets }: { tickets: Ticket[] }) {
                 href={`https://imaginet.atlassian.net/browse/${t.key}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-mono font-medium text-blue-400 hover:text-blue-300 hover:underline whitespace-nowrap"
+                className="font-mono font-medium text-blue-600 hover:text-blue-500 hover:underline whitespace-nowrap dark:text-blue-400 dark:hover:text-blue-300"
               >
                 {t.key}
               </a>
@@ -58,7 +74,7 @@ function TicketTable({ tickets }: { tickets: Ticket[] }) {
             <td className="py-2.5 pr-4 align-top text-zinc-300 leading-snug">{t.summary}</td>
             <td className="py-2.5 pr-4 align-top text-zinc-400 whitespace-nowrap">{t.lastCommentAuthor || "—"}</td>
             <td className="py-2.5 pr-4 align-top">
-              <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400 whitespace-nowrap">{t.status}</span>
+              <span className={`rounded-full px-2 py-0.5 text-xs whitespace-nowrap ${statusBadgeClass(t.status)}`}>{t.status}</span>
             </td>
             <td className="py-2.5 align-top text-right text-xs text-zinc-500 whitespace-nowrap">{ageLabel(t.updated)}</td>
           </tr>
@@ -106,14 +122,14 @@ function TriageContent({ result, error, loading, onRun }: {
       </div>
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 overflow-y-auto px-6 py-5">
-          {error && <div className="mb-4 rounded-lg border border-red-900 bg-red-950/40 px-4 py-3 text-sm text-red-400">{error}</div>}
+          {error && <div className="mb-4 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-900 dark:bg-red-950/40 dark:text-red-400">{error}</div>}
           {!loading && !error && !result && (
             <p className="text-sm text-zinc-600">Run the triage to fetch the latest open TFWS tickets.</p>
           )}
           {result && (
             <div className="flex flex-col gap-8">
-              <TriageSection title="New Today" count={result.newToday.count} tickets={result.newToday.tickets} accent="bg-emerald-900/50 text-emerald-400" />
-              <TriageSection title="Needs Our Response" count={result.needsResponse.count} tickets={result.needsResponse.tickets} accent="bg-amber-900/50 text-amber-400" />
+              <TriageSection title="New Today" count={result.newToday.count} tickets={result.newToday.tickets} accent="bg-emerald-100/60 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-400" />
+              <TriageSection title="Needs Our Response" count={result.needsResponse.count} tickets={result.needsResponse.tickets} accent="bg-amber-100/60 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400" />
               <TriageSection title="Gone Quiet (7+ days)" count={result.goneQuiet.count} tickets={result.goneQuiet.tickets} accent="bg-zinc-700 text-zinc-300" />
             </div>
           )}
@@ -163,7 +179,7 @@ function ReleaseLoadingPanel({ step, elapsed }: { step: number; elapsed: number 
     <div className="p-6">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <svg className="h-5 w-5 animate-spin text-blue-400" viewBox="0 0 24 24" fill="none">
+          <svg className="h-5 w-5 animate-spin text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
           </svg>
@@ -178,7 +194,7 @@ function ReleaseLoadingPanel({ step, elapsed }: { step: number; elapsed: number 
           return (
             <li key={i} className="flex items-start gap-3">
               <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-all ${
-                done ? "bg-emerald-800 text-emerald-300" : active ? "bg-blue-800 text-blue-300" : "bg-zinc-800 text-zinc-600"
+                done ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-800 dark:text-emerald-300" : active ? "bg-blue-100/60 text-blue-700 dark:bg-blue-800 dark:text-blue-300" : "bg-zinc-800 text-zinc-600"
               }`}>
                 {done ? "✓" : i + 1}
               </span>
@@ -227,12 +243,12 @@ function ReleaseNotesContent({ result, error, loading, step, elapsed, sprintNumb
         </div>
         <div className="flex items-center gap-2">
           {result && !loading && (
-            <button onClick={onRegenerate} disabled={loading} className="rounded-md bg-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-300 hover:bg-zinc-600 hover:text-zinc-100 disabled:opacity-60 disabled:cursor-not-allowed transition-colors">
-              Regenerate
+            <button onClick={onRegenerate} disabled={loading} title="Discard cached result and re-generate from Jira" className="rounded-md bg-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-300 hover:bg-zinc-600 hover:text-zinc-100 disabled:opacity-60 disabled:cursor-not-allowed transition-colors">
+              Re-generate (overwrite cached)
             </button>
           )}
           <button onClick={onRun} disabled={loading || !sprintNumber.trim()} className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors">
-            {loading ? "Running…" : "Run"}
+            {loading ? "Running…" : "Generate for current sprint"}
           </button>
         </div>
       </div>
@@ -270,16 +286,34 @@ function ReleaseNotesContent({ result, error, loading, step, elapsed, sprintNumb
         {/* Notes content */}
         <div className="flex-1 overflow-y-auto">
           {loading && <ReleaseLoadingPanel step={step} elapsed={elapsed} />}
-          {!loading && error && <div className="m-5 rounded-lg border border-red-900 bg-red-950/40 px-4 py-3 text-sm text-red-400">{error}</div>}
+          {!loading && error && <div className="m-5 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-900 dark:bg-red-950/40 dark:text-red-400">{error}</div>}
           {!loading && !error && !result && (
             <div className="flex h-full items-center justify-center">
               <p className="text-sm text-zinc-600">Enter a sprint number and click Run.</p>
             </div>
           )}
           {!loading && result && (
-            <pre className="px-8 py-6 text-sm text-zinc-300 whitespace-pre-wrap leading-relaxed font-sans">
-              {result.summary}
-            </pre>
+            <div className="px-8 py-6">
+              <ReactMarkdown
+                components={{
+                  h1: ({ children }) => <h1 className="mb-3 mt-6 text-lg font-bold text-zinc-100 first:mt-0">{children}</h1>,
+                  h2: ({ children }) => <h2 className="mb-2 mt-5 text-base font-semibold text-zinc-200 first:mt-0">{children}</h2>,
+                  h3: ({ children }) => <h3 className="mb-1 mt-4 text-sm font-semibold text-zinc-300 first:mt-0">{children}</h3>,
+                  p: ({ children }) => <p className="mb-3 text-sm leading-relaxed text-zinc-300">{children}</p>,
+                  ul: ({ children }) => <ul className="mb-3 space-y-1 pl-4">{children}</ul>,
+                  ol: ({ children }) => <ol className="mb-3 space-y-1 pl-4 list-decimal">{children}</ol>,
+                  li: ({ children }) => <li className="text-sm text-zinc-300 list-disc">{children}</li>,
+                  strong: ({ children }) => <strong className="font-semibold text-zinc-200">{children}</strong>,
+                  em: ({ children }) => <em className="italic text-zinc-400">{children}</em>,
+                  code: ({ children }) => <code className="rounded bg-zinc-800 px-1 py-0.5 font-mono text-xs text-zinc-300">{children}</code>,
+                  pre: ({ children }) => <pre className="mb-3 overflow-x-auto rounded-lg bg-zinc-800 p-4 text-xs">{children}</pre>,
+                  hr: () => <hr className="my-4 border-zinc-800" />,
+                  blockquote: ({ children }) => <blockquote className="mb-3 border-l-2 border-zinc-700 pl-4 text-zinc-500">{children}</blockquote>,
+                }}
+              >
+                {result.summary}
+              </ReactMarkdown>
+            </div>
           )}
         </div>
       </div>
@@ -293,6 +327,7 @@ interface WeeklySheetsResult {
   success: boolean;
   dateRange: string;
   row: (string | number)[];
+  writtenAt?: string;
 }
 
 function WeeklySheetsContent({ result, error, loading, onRun }: {
@@ -304,7 +339,11 @@ function WeeklySheetsContent({ result, error, loading, onRun }: {
         <div>
           <h2 className="font-semibold text-zinc-100">Weekly Sheets Update</h2>
           {result && (
-            <p className="mt-0.5 text-xs text-zinc-500">Last written: {result.dateRange}</p>
+            <p className="mt-0.5 text-xs text-zinc-500">
+              {result.writtenAt
+                ? `Last run ${new Date(result.writtenAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} · ${result.dateRange}`
+                : `Last written: ${result.dateRange}`}
+            </p>
           )}
         </div>
         <button
@@ -318,16 +357,16 @@ function WeeklySheetsContent({ result, error, loading, onRun }: {
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {error && (
-            <div className="mb-4 rounded-lg border border-red-900 bg-red-950/40 px-4 py-3 text-sm text-red-400">{error}</div>
+            <div className="mb-4 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-900 dark:bg-red-950/40 dark:text-red-400">{error}</div>
           )}
           {!loading && !error && !result && (
             <p className="text-sm text-zinc-600">Click Run to fetch current Jira stats and append a new row to the Google Sheet.</p>
           )}
           {result && (
-            <div className="rounded-lg border border-emerald-800 bg-emerald-950/30 px-5 py-4">
+            <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-5 py-4 dark:border-emerald-800 dark:bg-emerald-950/30">
               <div className="mb-3 flex items-center gap-2">
-                <span className="text-emerald-400 text-base">✓</span>
-                <span className="text-sm font-semibold text-emerald-300">Row written successfully</span>
+                <span className="text-emerald-600 dark:text-emerald-400 text-base">✓</span>
+                <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Row written successfully</span>
               </div>
               <p className="mb-4 text-xs text-zinc-400">Week: <span className="text-zinc-200">{result.dateRange}</span></p>
               <div className="overflow-x-auto">
@@ -395,13 +434,16 @@ function PlaceholderContent({ title, description }: { title: string; description
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 
-type AutomationTab = "triage" | "release" | "digest" | "sheets" | "timelog";
+const SPRINT_CACHE_KEY = "sprint_status_cache";
+
+type AutomationTab = "triage" | "release" | "digest" | "sheets" | "timelog" | "sprint";
 
 const TABS: { id: AutomationTab; label: string }[] = [
-  { id: "triage", label: "Daily Triage" },
+  { id: "triage",  label: "Daily Triage" },
+  { id: "sprint",  label: "Sprint Status" },
   { id: "release", label: "Sprint Release Notes" },
-  { id: "digest", label: "Weekly Digest" },
-  { id: "sheets", label: "Weekly Sheets" },
+  { id: "digest",  label: "Weekly Digest" },
+  { id: "sheets",  label: "Weekly Sheets" },
   { id: "timelog", label: "Log My Time" },
 ];
 
@@ -428,6 +470,12 @@ export default function AutomationsTab() {
   const [sheetsLoading, setSheetsLoading] = useState(false);
   const [sheetsError, setSheetsError] = useState<string | null>(null);
   const [sheetsResult, setSheetsResult] = useState<WeeklySheetsResult | null>(null);
+
+  // Sprint status
+  const [sprintLoading, setSprintLoading] = useState(false);
+  const [sprintError, setSprintError] = useState<string | null>(null);
+  const [sprintResult, setSprintResult] = useState<SprintStatusResponse | null>(null);
+  const [sprintCachedAt, setSprintCachedAt] = useState<string | null>(null);
 
   // History
   const [sprintHistory, setSprintHistory] = useState<SprintHistoryEntry[]>([]);
@@ -461,10 +509,26 @@ export default function AutomationsTab() {
       .then((data) => { if (data) setTriageResult(data); })
       .catch(() => {});
 
-    // Load most recent sprint
+    // Load last weekly sheets run from KV
+    fetch("/api/sheets/weekly-update")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (data) setSheetsResult(data); })
+      .catch(() => {});
+
+    // Load most recent sprint release notes
     loadHistory().then((sprints) => {
       if (sprints.length > 0) loadCachedSprint(String(sprints[0].number));
     });
+
+    // Load cached sprint status from localStorage
+    try {
+      const raw = localStorage.getItem(SPRINT_CACHE_KEY);
+      if (raw) {
+        const cached = JSON.parse(raw) as { data: SprintStatusResponse; cachedAt: string };
+        setSprintResult(cached.data);
+        setSprintCachedAt(cached.cachedAt);
+      }
+    } catch { /* ignore */ }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -517,6 +581,27 @@ export default function AutomationsTab() {
       setReleaseError((err as Error).message);
     } finally {
       setReleaseLoading(false);
+    }
+  }
+
+  async function runSprintStatus() {
+    setSprintLoading(true);
+    setSprintError(null);
+    setActiveTab("sprint");
+    try {
+      const res = await fetch("/api/jira/sprint-status");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Request failed");
+      const cachedAt = new Date().toISOString();
+      setSprintResult(data);
+      setSprintCachedAt(cachedAt);
+      try {
+        localStorage.setItem(SPRINT_CACHE_KEY, JSON.stringify({ data, cachedAt }));
+      } catch { /* ignore */ }
+    } catch (err) {
+      setSprintError((err as Error).message);
+    } finally {
+      setSprintLoading(false);
     }
   }
 
@@ -577,6 +662,9 @@ export default function AutomationsTab() {
       <div className="flex flex-1 flex-col overflow-hidden">
         {activeTab === "triage" && (
           <TriageContent result={triageResult} error={triageError} loading={triageLoading} onRun={runTriage} />
+        )}
+        {activeTab === "sprint" && (
+          <SprintContent result={sprintResult} error={sprintError} loading={sprintLoading} cachedAt={sprintCachedAt} onRun={runSprintStatus} />
         )}
         {activeTab === "release" && (
           <ReleaseNotesContent

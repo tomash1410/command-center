@@ -29,10 +29,10 @@ const defaultAliases: Alias[] = [
 ];
 
 const categoryColors: Record<string, string> = {
-  DEV: "bg-blue-900/40 text-blue-300",
-  PM: "bg-purple-900/40 text-purple-300",
-  SUPPORT: "bg-amber-900/40 text-amber-300",
-  Travel: "bg-teal-900/40 text-teal-300",
+  DEV: "bg-blue-100/60 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300",
+  PM: "bg-purple-100/60 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
+  SUPPORT: "bg-amber-100/60 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
+  Travel: "bg-teal-100/60 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300",
 };
 
 function uid() {
@@ -176,7 +176,7 @@ export default function TimeLogTab() {
                       <td className="px-3 py-2"><input className={`${inputClass} font-mono`} value={editForm.ticket} onChange={(e) => setEditForm((f) => ({ ...f, ticket: e.target.value }))} /></td>
                       <td className="px-3 py-2"><input className={inputClass} value={editForm.category} onChange={(e) => setEditForm((f) => ({ ...f, category: e.target.value }))} /></td>
                       <td className="px-3 py-2 text-right">
-                        <button onClick={() => saveEdit(a.id)} className="mr-3 text-xs text-emerald-400 hover:text-emerald-300">Save</button>
+                        <button onClick={() => saveEdit(a.id)} className="mr-3 text-xs text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300">Save</button>
                         <button onClick={() => setEditingId(null)} className="text-xs text-zinc-500 hover:text-zinc-300">Cancel</button>
                       </td>
                     </>
@@ -204,7 +204,7 @@ export default function TimeLogTab() {
                   <td className="px-3 py-2"><input placeholder="TFW-0000" className={`${inputClass} font-mono`} value={newForm.ticket} onChange={(e) => setNewForm((f) => ({ ...f, ticket: e.target.value }))} /></td>
                   <td className="px-3 py-2"><input placeholder="DEV / PM / SUPPORT" className={inputClass} value={newForm.category} onChange={(e) => setNewForm((f) => ({ ...f, category: e.target.value }))} /></td>
                   <td className="px-3 py-2 text-right">
-                    <button onClick={addAlias} className="mr-3 text-xs text-emerald-400 hover:text-emerald-300">Add</button>
+                    <button onClick={addAlias} className="mr-3 text-xs text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300">Add</button>
                     <button onClick={() => { setShowAddRow(false); setNewForm({ alias: "", ticket: "", category: "" }); }} className="text-xs text-zinc-500 hover:text-zinc-300">Cancel</button>
                   </td>
                 </tr>
@@ -270,10 +270,10 @@ export default function TimeLogTab() {
             <button onClick={addEntry} className="text-sm text-zinc-400 hover:text-zinc-200 transition-colors">
               + Add entry
             </button>
-            <span className={`text-sm font-medium tabular-nums ${totalHours > 7.5 ? "text-red-400" : totalHours === 7.5 ? "text-emerald-400" : "text-zinc-400"}`}>
+            <span className={`text-sm font-medium tabular-nums ${totalHours > 7.5 ? "text-red-600 dark:text-red-400" : totalHours === 7.5 ? "text-emerald-600 dark:text-emerald-400" : "text-zinc-400"}`}>
               {totalHours.toFixed(2)} / 7.5 hrs
-              {overUnder > 0.001 && <span className="ml-1 text-red-400">(+{overUnder.toFixed(2)})</span>}
-              {overUnder < -0.001 && <span className="ml-1 text-amber-400">({overUnder.toFixed(2)})</span>}
+              {overUnder > 0.001 && <span className="ml-1 text-red-600 dark:text-red-400">(+{overUnder.toFixed(2)})</span>}
+              {overUnder < -0.001 && <span className="ml-1 text-amber-600 dark:text-amber-400">({overUnder.toFixed(2)})</span>}
             </span>
           </div>
         </div>
@@ -321,7 +321,7 @@ export default function TimeLogTab() {
             <div className="mt-4">
               <div className="mb-1.5 flex justify-between text-xs text-zinc-500">
                 <span>09:00</span>
-                <span className={totalHours >= 7.5 ? "text-emerald-400 font-medium" : ""}>
+                <span className={totalHours >= 7.5 ? "text-emerald-600 font-medium dark:text-emerald-400" : ""}>
                   {totalHours.toFixed(2)} / 7.5 hrs
                 </span>
                 <span>16:30</span>

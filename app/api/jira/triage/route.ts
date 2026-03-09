@@ -144,12 +144,16 @@ export async function GET(request: Request) {
     }
   }
 
+  // Deduplicate: remove goneQuiet tickets already in needsResponse
+  const needsResponseKeys = new Set(needsResponse.map((t) => t.key));
+  const goneQuietDeduped = goneQuiet.filter((t) => !needsResponseKeys.has(t.key));
+
   const result = {
     fetchedAt: new Date().toISOString(),
     totalOpen: issues.length,
     newToday: { count: newToday.length, tickets: newToday },
     needsResponse: { count: needsResponse.length, tickets: needsResponse },
-    goneQuiet: { count: goneQuiet.length, tickets: goneQuiet },
+    goneQuiet: { count: goneQuietDeduped.length, tickets: goneQuietDeduped },
   };
 
   if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {

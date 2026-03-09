@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useTheme } from "@/components/ThemeProvider";
 
 type Tab = "commands" | "today" | "todo" | "time-aliases";
 
@@ -13,6 +14,48 @@ const tabs: { id: Tab; label: string; icon: string }[] = [
   { id: "todo",        label: "To-do",        icon: "✓" },
   { id: "time-aliases",label: "Time Aliases", icon: "⏱" },
 ];
+
+function ThemeToggle() {
+  const { theme, toggle } = useTheme();
+  return (
+    <button
+      onClick={toggle}
+      title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-200 w-full"
+    >
+      {theme === "dark" ? (
+        <>
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="5" />
+            <path strokeLinecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+          </svg>
+          Light mode
+        </>
+      ) : (
+        <>
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+          </svg>
+          Dark mode
+        </>
+      )}
+    </button>
+  );
+}
+
+function MobileThemeToggle() {
+  const { theme, toggle } = useTheme();
+  return (
+    <button
+      onClick={toggle}
+      className="flex flex-1 flex-col items-center justify-center gap-1 py-3 text-xs font-medium text-zinc-500 transition-colors"
+      title="Toggle theme"
+    >
+      <span className="text-lg leading-none">{theme === "dark" ? "☀️" : "🌙"}</span>
+      Theme
+    </button>
+  );
+}
 
 export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   return (
@@ -43,6 +86,9 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             </button>
           ))}
         </nav>
+        <div className="mt-auto border-t border-zinc-800 p-3">
+          <ThemeToggle />
+        </div>
       </aside>
 
       {/* Mobile bottom tab bar */}
@@ -61,6 +107,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             {tab.label}
           </button>
         ))}
+        <MobileThemeToggle />
       </nav>
     </>
   );
