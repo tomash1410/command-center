@@ -292,7 +292,7 @@ export function SprintContent({
                   <p className="text-sm font-semibold">
                     {sprint.daysRemaining === 0
                       ? `🚨 Sprint ends today — ${summary.toDo} ticket${summary.toDo !== 1 ? "s" : ""} still not started`
-                      : `⚠️ Last day of sprint — ${summary.toDo} ticket${summary.toDo !== 1 ? "s" : ""} still not started`}
+                      : `⚠️ Sprint ends tomorrow — ${summary.toDo} ticket${summary.toDo !== 1 ? "s" : ""} still not started`}
                   </p>
                 </div>
               )}
