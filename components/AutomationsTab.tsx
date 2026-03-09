@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import WeeklyDigest from "@/components/WeeklyDigest";
 
 // ── Triage ────────────────────────────────────────────────────────────────────
 
@@ -593,9 +594,7 @@ export default function AutomationsTab() {
             onLoadSprint={loadCachedSprint}
           />
         )}
-        {activeTab === "digest" && (
-          <PlaceholderContent title="Weekly Digest" description="Counts tickets by status, identifies themes, and posts a summary to Slack." />
-        )}
+        {activeTab === "digest" && <WeeklyDigest />}
         {activeTab === "sheets" && (
           <WeeklySheetsContent result={sheetsResult} error={sheetsError} loading={sheetsLoading} onRun={runWeeklySheets} />
         )}

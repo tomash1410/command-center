@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-type Tab = "commands" | "todo" | "time-aliases";
+type Tab = "commands" | "today" | "todo" | "time-aliases";
 
 interface SidebarProps {
   activeTab: Tab;
@@ -8,9 +8,10 @@ interface SidebarProps {
 }
 
 const tabs: { id: Tab; label: string; icon: string }[] = [
-  { id: "commands", label: "Automations", icon: "⚡" },
-  { id: "todo", label: "To-do", icon: "✓" },
-  { id: "time-aliases", label: "Time Aliases", icon: "⏱" },
+  { id: "today",       label: "Today",        icon: "◉" },
+  { id: "commands",    label: "Automations",  icon: "⚡" },
+  { id: "todo",        label: "To-do",        icon: "✓" },
+  { id: "time-aliases",label: "Time Aliases", icon: "⏱" },
 ];
 
 export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {

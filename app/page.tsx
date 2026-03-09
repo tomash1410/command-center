@@ -4,8 +4,9 @@ import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import TimeLogTab from "@/components/TimeLogTab";
 import AutomationsTab from "@/components/AutomationsTab";
+import TodayTab from "@/components/TodayTab";
 
-type Tab = "commands" | "todo" | "time-aliases";
+type Tab = "commands" | "today" | "todo" | "time-aliases";
 
 
 const todoItems = [
@@ -70,19 +71,27 @@ function TodoTab() {
 
 const tabTitles: Record<Tab, string> = {
   commands: "Automations",
+  today: "Today",
   todo: "To-do",
   "time-aliases": "Time Aliases",
 };
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<Tab>("commands");
+  const [activeTab, setActiveTab] = useState<Tab>("today");
 
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       <main className="flex flex-1 flex-col overflow-hidden">
         <header className="shrink-0 border-b border-zinc-800 px-4 py-4 md:px-8 md:py-5">
-          <h1 className="text-lg font-semibold text-zinc-100 md:text-xl">{tabTitles[activeTab]}</h1>
+          <div className="flex items-baseline gap-3">
+            <h1 className="text-lg font-semibold text-zinc-100 md:text-xl">{tabTitles[activeTab]}</h1>
+            {activeTab === "today" && (
+              <span className="text-sm text-zinc-500">
+                {new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}
+              </span>
+            )}
+          </div>
         </header>
         {activeTab === "commands" ? (
           <div className="flex flex-1 overflow-hidden p-3 pb-20 md:p-6 md:pb-6">
@@ -90,7 +99,8 @@ export default function Home() {
           </div>
         ) : (
           <div className="overflow-y-auto p-4 pb-24 md:p-8 md:pb-8">
-            {activeTab === "todo" && <TodoTab />}
+            {activeTab === "today"        && <TodayTab />}
+            {activeTab === "todo"         && <TodoTab />}
             {activeTab === "time-aliases" && <TimeLogTab />}
           </div>
         )}

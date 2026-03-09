@@ -55,6 +55,16 @@ async function sheetsPost(path: string, token: string, body: unknown) {
   return res.json();
 }
 
+async function sheetsPut(path: string, token: string, body: unknown) {
+  const res = await fetch(`${sheetsBase}${path}`, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`Sheets PUT failed: ${await res.text()}`);
+  return res.json();
+}
+
 // ── Jira count helper ─────────────────────────────────────────────────────────
 
 async function jiraCount(jql: string, credentials: string, baseUrl: string): Promise<number> {
@@ -73,6 +83,7 @@ async function jiraCount(jql: string, credentials: string, baseUrl: string): Pro
 // ── Route handler ─────────────────────────────────────────────────────────────
 
 export async function POST() {
+  try {
   const {
     JIRA_BASE_URL, JIRA_EMAIL, JIRA_API_TOKEN,
     GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
@@ -207,16 +218,15 @@ export async function POST() {
 
   const existing = await sheetsGet("/values/Sheet1!A:A", token);
   const currentRowCount: number = (existing.values as unknown[])?.length ?? 0;
+  const nextRow = currentRowCount + 1;
 
-  const appendRes = await sheetsPost(
-    "/values/Sheet1!A:R:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS",
+  await sheetsPut(
+    `/values/Sheet1!A${nextRow}:R${nextRow}?valueInputOption=USER_ENTERED`,
     token,
     { values: [row] }
   );
 
-  const updatedRange: string = appendRes.updates?.updatedRange ?? "";
-  const rowMatch = updatedRange.match(/(\d+):/);
-  const newRowIndex = rowMatch ? parseInt(rowMatch[1]) - 1 : currentRowCount;
+  const newRowIndex = nextRow - 1;
   const prevRowIndex = newRowIndex - 1;
 
   const requests: unknown[] = [
@@ -242,4 +252,9 @@ export async function POST() {
   await sheetsPost(":batchUpdate", token, { requests });
 
   return Response.json({ success: true, dateRange, row });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[weekly-update] Unhandled error:", message);
+    return Response.json({ error: message }, { status: 500 });
+  }
 }
