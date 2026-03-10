@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import WeeklyDigest from "@/components/WeeklyDigest";
+import TimeLogTab from "@/components/TimeLogTab";
 import { SprintContent } from "@/components/SprintStatusTab";
 import type { SprintStatusResponse } from "@/components/SprintStatusTab";
 
@@ -687,7 +688,9 @@ export default function AutomationsTab() {
           <WeeklySheetsContent result={sheetsResult} error={sheetsError} loading={sheetsLoading} onRun={runWeeklySheets} />
         )}
         {activeTab === "timelog" && (
-          <PlaceholderContent title="Log My Time" description="Logs time to Jira worklogs across multiple tickets with ADF comment format." />
+          <div className="flex-1 overflow-y-auto px-6 py-5">
+            <TimeLogTab />
+          </div>
         )}
       </div>
     </div>

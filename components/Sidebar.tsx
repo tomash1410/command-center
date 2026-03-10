@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { useTheme } from "@/components/ThemeProvider";
 
-type Tab = "commands" | "today" | "todo" | "time-aliases";
+type Tab = "commands" | "today" | "todo";
 
 interface SidebarProps {
   activeTab: Tab;
@@ -9,10 +9,9 @@ interface SidebarProps {
 }
 
 const tabs: { id: Tab; label: string; icon: string }[] = [
-  { id: "today",       label: "Today",        icon: "◉" },
-  { id: "commands",    label: "Automations",  icon: "⚡" },
-  { id: "todo",        label: "To-do",        icon: "✓" },
-  { id: "time-aliases",label: "Time Aliases", icon: "⏱" },
+  { id: "today",    label: "Today",       icon: "◉" },
+  { id: "commands", label: "Automations", icon: "⚡" },
+  { id: "todo",     label: "To-do",       icon: "✓" },
 ];
 
 function ThemeToggle() {

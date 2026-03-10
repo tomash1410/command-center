@@ -2,10 +2,9 @@
 
 import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
-import TimeLogTab from "@/components/TimeLogTab";
 import AutomationsTab from "@/components/AutomationsTab";
 import TodayTab from "@/components/TodayTab";
-type Tab = "commands" | "today" | "todo" | "time-aliases";
+type Tab = "commands" | "today" | "todo";
 
 
 const todoItems = [
@@ -72,7 +71,6 @@ const tabTitles: Record<Tab, string> = {
   commands: "Automations",
   today: "Today",
   todo: "To-do",
-  "time-aliases": "Time Aliases",
 };
 
 export default function Home() {
@@ -98,9 +96,8 @@ export default function Home() {
           </div>
         ) : (
           <div className="overflow-y-auto p-4 pb-24 md:p-8 md:pb-8">
-            {activeTab === "today"        && <TodayTab />}
-            {activeTab === "todo"         && <TodoTab />}
-            {activeTab === "time-aliases" && <TimeLogTab />}
+            {activeTab === "today" && <TodayTab />}
+            {activeTab === "todo"  && <TodoTab />}
           </div>
         )}
       </main>
