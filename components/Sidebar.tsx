@@ -88,6 +88,14 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
         </nav>
         <div className="mt-auto border-t border-zinc-800 p-3">
           <ThemeToggle />
+          <form action="/api/auth/logout" method="post" className="mt-1">
+            <button
+              type="submit"
+              className="w-full rounded-md px-3 py-1.5 text-left text-xs text-zinc-600 transition-colors hover:text-zinc-400"
+            >
+              Log out
+            </button>
+          </form>
         </div>
       </aside>
 
