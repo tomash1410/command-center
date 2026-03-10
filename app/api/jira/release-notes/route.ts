@@ -325,19 +325,19 @@ Then write release notes grouped into exactly four sections, in this order:
 **Format for Bug Fixes / Features & Enhancements / Internal & Performance entries:**
 
 **[TFW ticket title]** (TFW-XXXX)
-2–4 sentences in plain English — what the problem was or what was requested, what was built or fixed, and any notable detail. Draw on the description, comments, and sub-task content for context.
+2–4 sentences following a two-part structure: first, a neutral description of the problem, context, or request (what was happening, what was missing, what needed doing); then the resolution phrased in active first-person — what we did and what the outcome is. Lead with the subject matter, not with "We". For example: "Apple Pay functionality was broken due to a domain configuration issue — we verified the setup and payment now works correctly across all supported devices." Do not open an entry with "We resolved", "We fixed", or "We implemented".
 
 **Format for Support Tickets entries:**
 Use the TFWS ticket summary as the entry title (not the TFW ticket title), since clients recognise support desk references more readily.
 
 **[TFWS ticket summary]** (TFWS-XXXX / TFW-XXXX)
-2–4 sentences describing the fix — what the customer-reported issue was, what was resolved, and any relevant detail. Draw on the TFW ticket description, comments, and sub-tasks for context.
+2–4 sentences following the same two-part structure: neutral description of the customer-reported issue, then what we did to resolve it. Lead with the subject matter, not with "We". Draw on the TFW ticket description, comments, and sub-tasks for context.
 If a TFW ticket has multiple TFWS links, create one entry per TFWS ticket.
 
 **General rules:**
 - Only surface parent TFW tickets. Sub-tasks are context only — never list them as separate entries.
+- Exclude any ticket whose summary contains the words "quality check" (case-insensitive) — this covers tickets like "Sprint Quality Check", "Release Quality Check [Engine]", and any similar variants. Do not include these anywhere in the output.
 - Exclude pure QA, regression testing, UAT, and process/admin tickets entirely.
-- Write in an active, first-person team voice. Describe the problem or context neutrally, but always phrase the resolution as something we did — "we fixed", "we updated", "we added" — not passive constructions like "has been fixed", "was implemented", or "X is now available". The tone should feel like a team reporting to stakeholders, not a changelog.
 - Write for a non-technical client audience — specific and informative, but jargon-free.
 - If a ticket's description and comments are empty or uninformative, write the best entry you can from the title and flag it with ⚠️ at the end.
 - If a section has no tickets, write "Nothing to report this sprint." under the heading.
