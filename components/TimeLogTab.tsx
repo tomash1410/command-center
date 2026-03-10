@@ -76,6 +76,9 @@ export default function TimeLogTab() {
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [entries, setEntries] = useState<DayEntry[]>([{ id: uid(), aliasId: "", hours: 0 }]);
 
+  const [logLoading, setLogLoading] = useState(false);
+  const [logResults, setLogResults] = useState<{ issueKey: string; success: boolean; status: number; error?: string }[] | null>(null);
+
   // --- Alias CRUD ---
   function startEdit(a: Alias) {
     setEditingId(a.id);
@@ -346,41 +349,98 @@ export default function TimeLogTab() {
         {schedule.length === 0 ? (
           <p className="text-sm text-zinc-600">Fill in entries above to preview the Jira payloads.</p>
         ) : (
-          <div className="flex flex-col gap-4">
-            {schedule.map((row, i) => {
-              const started = buildStartedIso(date, row.startMins);
-              const adf = buildAdfComment(row.category);
-              return (
-                <div key={i} className="rounded-lg border border-zinc-800 bg-zinc-900 overflow-hidden">
-                  <div className="flex items-center gap-3 border-b border-zinc-800 bg-zinc-800/50 px-4 py-2.5">
-                    <span className="font-mono text-sm font-semibold text-zinc-100">{row.ticket}</span>
-                    <span className="text-zinc-600">·</span>
-                    <span className="text-sm text-zinc-400">{row.alias}</span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-px bg-zinc-800 border-b border-zinc-800">
-                    <div className="bg-zinc-900 px-4 py-3">
-                      <p className="mb-1 text-xs text-zinc-500">timeSpentSeconds</p>
-                      <p className="font-mono text-sm text-zinc-200">{row.durationSeconds}</p>
+          <>
+            <div className="flex flex-col gap-4">
+              {schedule.map((row, i) => {
+                const started = buildStartedIso(date, row.startMins);
+                const adf = buildAdfComment(row.category);
+                return (
+                  <div key={i} className="rounded-lg border border-zinc-800 bg-zinc-900 overflow-hidden">
+                    <div className="flex items-center gap-3 border-b border-zinc-800 bg-zinc-800/50 px-4 py-2.5">
+                      <span className="font-mono text-sm font-semibold text-zinc-100">{row.ticket}</span>
+                      <span className="text-zinc-600">·</span>
+                      <span className="text-sm text-zinc-400">{row.alias}</span>
                     </div>
-                    <div className="bg-zinc-900 px-4 py-3">
-                      <p className="mb-1 text-xs text-zinc-500">started</p>
-                      <p className="font-mono text-sm text-zinc-200">{started}</p>
+                    <div className="grid grid-cols-3 gap-px bg-zinc-800 border-b border-zinc-800">
+                      <div className="bg-zinc-900 px-4 py-3">
+                        <p className="mb-1 text-xs text-zinc-500">timeSpentSeconds</p>
+                        <p className="font-mono text-sm text-zinc-200">{row.durationSeconds}</p>
+                      </div>
+                      <div className="bg-zinc-900 px-4 py-3">
+                        <p className="mb-1 text-xs text-zinc-500">started</p>
+                        <p className="font-mono text-sm text-zinc-200">{started}</p>
+                      </div>
+                      <div className="bg-zinc-900 px-4 py-3">
+                        <p className="mb-1 text-xs text-zinc-500">duration (hrs)</p>
+                        <p className="font-mono text-sm text-zinc-200">{row.hours}h</p>
+                      </div>
                     </div>
-                    <div className="bg-zinc-900 px-4 py-3">
-                      <p className="mb-1 text-xs text-zinc-500">duration (hrs)</p>
-                      <p className="font-mono text-sm text-zinc-200">{row.hours}h</p>
+                    <div className="px-4 py-3">
+                      <p className="mb-1.5 text-xs text-zinc-500">comment (ADF)</p>
+                      <pre className="overflow-x-auto rounded bg-zinc-950 p-3 text-xs text-zinc-300 leading-relaxed">
+                        {JSON.stringify(adf, null, 2)}
+                      </pre>
                     </div>
                   </div>
-                  <div className="px-4 py-3">
-                    <p className="mb-1.5 text-xs text-zinc-500">comment (ADF)</p>
-                    <pre className="overflow-x-auto rounded bg-zinc-950 p-3 text-xs text-zinc-300 leading-relaxed">
-                      {JSON.stringify(adf, null, 2)}
-                    </pre>
-                  </div>
+                );
+              })}
+            </div>
+
+            {/* Log to Jira */}
+            <div className="mt-6">
+              <button
+                onClick={async () => {
+                  setLogLoading(true);
+                  setLogResults(null);
+                  const payload = schedule.map((row) => ({
+                    issueKey: row.ticket,
+                    timeSpentSeconds: row.durationSeconds,
+                    started: buildStartedIso(date, row.startMins),
+                    comment: buildAdfComment(row.category),
+                  }));
+                  try {
+                    const res = await fetch("/api/log-time", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(payload),
+                    });
+                    const data = await res.json();
+                    setLogResults(data.results ?? []);
+                  } catch (err) {
+                    setLogResults([{ issueKey: "—", success: false, status: 0, error: (err as Error).message }]);
+                  } finally {
+                    setLogLoading(false);
+                  }
+                }}
+                disabled={logLoading}
+                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+              >
+                {logLoading ? "Logging…" : "Log to Jira"}
+              </button>
+
+              {logResults && (
+                <div className="mt-4 flex flex-col gap-2">
+                  {logResults.map((r, i) => (
+                    <div key={i} className="flex items-center gap-3 rounded-md border border-zinc-800 bg-zinc-900 px-4 py-2.5 text-sm">
+                      {r.success ? (
+                        <>
+                          <span className="text-emerald-500">✓</span>
+                          <span className="font-mono text-zinc-200">{r.issueKey}</span>
+                          <span className="text-zinc-500">logged</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-red-500">✕</span>
+                          <span className="font-mono text-zinc-200">{r.issueKey}</span>
+                          <span className="text-red-400">{r.error ?? `HTTP ${r.status}`}</span>
+                        </>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              );
-            })}
-          </div>
+              )}
+            </div>
+          </>
         )}
       </section>
     </div>
