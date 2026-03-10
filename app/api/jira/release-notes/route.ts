@@ -174,6 +174,7 @@ interface StoredResult {
   sprint: string;
   total: number;
   returned: number;
+  ticketsFetched?: string[];
   summary: string;
   generatedAt: string;
   sprintStartDate?: string | null;
@@ -220,31 +221,46 @@ export async function GET(request: Request) {
 
   // ── Step 1: Fetch Done parent tickets from the sprint ─────────────────────
   // Exclude sub-tasks — we'll fetch those via each parent's subtasks field.
-  const jql = encodeURIComponent(
+  // Paginate to avoid the silent 50-ticket truncation.
+  const baseJql = encodeURIComponent(
     `project=TFW AND sprint='TFW Sprint ${sprint}' AND statusCategory=Done AND issuetype != Sub-task ORDER BY issuetype ASC`
   );
   const fields = "summary,issuetype,status,assignee,labels,priority,description,subtasks,issuelinks,customfield_10020";
-  const searchUrl = `${JIRA_BASE_URL}/rest/api/3/search/jql?jql=${jql}&fields=${fields}&maxResults=50`;
 
-  const jiraRes = await fetch(searchUrl, {
-    headers: { Authorization: `Basic ${credentials}`, Accept: "application/json" },
-  });
+  const allIssues: Parameters<typeof enrichTicket>[0][] = [];
+  let startAt = 0;
+  let jiraTotal = 0;
+  let firstPageData: Record<string, unknown> = {};
 
-  const data = await jiraRes.json();
+  do {
+    const searchUrl = `${JIRA_BASE_URL}/rest/api/3/search/jql?jql=${baseJql}&fields=${fields}&maxResults=100&startAt=${startAt}`;
+    const jiraRes = await fetch(searchUrl, {
+      headers: { Authorization: `Basic ${credentials}`, Accept: "application/json" },
+    });
+    const page = await jiraRes.json();
+    if (!jiraRes.ok) {
+      return Response.json(
+        { error: page.errorMessages?.[0] ?? `Jira search failed: ${jiraRes.status}` },
+        { status: jiraRes.status }
+      );
+    }
+    if (startAt === 0) firstPageData = page;
+    const pageIssues: Parameters<typeof enrichTicket>[0][] = page.issues ?? [];
+    allIssues.push(...pageIssues);
+    jiraTotal = page.total ?? allIssues.length;
+    startAt += pageIssues.length;
+    if (pageIssues.length < 100) break;
+  } while (startAt < jiraTotal);
 
-  if (!jiraRes.ok) {
-    return Response.json(
-      { error: data.errorMessages?.[0] ?? `Jira search failed: ${jiraRes.status}` },
-      { status: jiraRes.status }
-    );
-  }
+  const data = { ...firstPageData, issues: allIssues, total: jiraTotal };
 
   // ── Step 1b: Extract sprint start/end dates from customfield_10020 ───────
   // customfield_10020 is an array of sprint objects; find the matching sprint.
   let sprintStartDate: string | null = null;
   let sprintEndDate: string | null = null;
   try {
-    const sprintField = data.issues?.[0]?.fields?.customfield_10020;
+    const firstIssue = (firstPageData as { issues?: { fields?: { customfield_10020?: unknown } }[] }).issues?.[0];
+    const sprintField = firstIssue?.fields?.customfield_10020;
     const sprints: Array<{ name?: string; startDate?: string; endDate?: string; completeDate?: string }> =
       Array.isArray(sprintField) ? sprintField : [];
     const match = sprints.find((s) => s.name?.includes(`Sprint ${sprint}`)) ?? sprints[0];
@@ -387,6 +403,9 @@ If a TFW ticket has multiple TFWS links, create one entry per TFWS ticket.
     sprint: `TFW Sprint ${sprint}`,
     total: data.total,
     returned: enrichedTickets.length,
+    // ticketsFetched lets you verify exactly which keys reached the prompt —
+    // if a ticket is missing here it was excluded by the JQL, not by Claude.
+    ticketsFetched: enrichedTickets.map((t) => `${t.key}: ${t.summary}`),
     summary,
     generatedAt: new Date().toISOString(),
     sprintStartDate,
