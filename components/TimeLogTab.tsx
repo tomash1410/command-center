@@ -58,7 +58,7 @@ function buildAdfComment(aliasName: string) {
     content: [
       {
         type: "paragraph",
-        content: [{ type: "text", text: `Logged via Command Centre — ${aliasName}` }],
+        content: [{ type: "text", text: aliasName }],
       },
     ],
   };
