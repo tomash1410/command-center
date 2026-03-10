@@ -319,8 +319,8 @@ Then write release notes grouped into exactly four sections, in this order:
 ## 🎫 Support Tickets
 
 **Placement rules:**
-- If a TFW ticket has one or more linked TFWS tickets (listed under "Linked TFWS support tickets"), place it in the 🎫 Support Tickets section — NOT in any other category.
-- All other tickets go into Bug Fixes, Features & Enhancements, or Internal & Performance as appropriate.
+- If a TFW ticket has one or more linked TFWS tickets (listed under "Linked TFWS support tickets"), it must appear ONLY in the 🎫 Support Tickets section. Exclude it entirely from Bug Fixes, Features & Enhancements, and Internal & Performance — even if its issuetype would normally place it there.
+- All other tickets (no TFWS links) go into Bug Fixes, Features & Enhancements, or Internal & Performance as appropriate.
 
 **Format for Bug Fixes / Features & Enhancements / Internal & Performance entries:**
 
@@ -337,6 +337,7 @@ If a TFW ticket has multiple TFWS links, create one entry per TFWS ticket.
 **General rules:**
 - Only surface parent TFW tickets. Sub-tasks are context only — never list them as separate entries.
 - Exclude pure QA, regression testing, UAT, and process/admin tickets entirely.
+- Write in an active, first-person team voice. Describe the problem or context neutrally, but always phrase the resolution as something we did — "we fixed", "we updated", "we added" — not passive constructions like "has been fixed", "was implemented", or "X is now available". The tone should feel like a team reporting to stakeholders, not a changelog.
 - Write for a non-technical client audience — specific and informative, but jargon-free.
 - If a ticket's description and comments are empty or uninformative, write the best entry you can from the title and flag it with ⚠️ at the end.
 - If a section has no tickets, write "Nothing to report this sprint." under the heading.
