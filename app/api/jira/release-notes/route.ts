@@ -320,7 +320,15 @@ Then write release notes grouped into exactly four sections, in this order:
 
 **Placement rules:**
 - If a TFW ticket has one or more linked TFWS tickets (listed under "Linked TFWS support tickets"), it must appear ONLY in the 🎫 Support Tickets section. Exclude it entirely from Bug Fixes, Features & Enhancements, and Internal & Performance — even if its issuetype would normally place it there.
-- All other tickets (no TFWS links) go into Bug Fixes, Features & Enhancements, or Internal & Performance as appropriate.
+- All other tickets (no TFWS links) are placed according to the category definitions below.
+
+**Category definitions — use these strictly:**
+
+🐛 **Bug Fixes** — work that corrects broken or incorrect behaviour that end users could observe or be affected by. The thing existed, it didn't work correctly, we fixed it.
+
+✨ **Features & Enhancements** — work that introduces something new or visibly improves something from a user-facing perspective. A non-technical stakeholder would notice or benefit from this directly.
+
+⚙️ **Internal & Performance** — everything else. This includes: proof of concept (POC) work and technical investigations; pipeline, CI/CD, or deployment automation; API integrations or migrations; background jobs or scheduled tasks; performance improvements; dependency upgrades; code refactoring; and any work that does not directly change what end users see or do. When in doubt, ask: would a non-technical stakeholder notice or care about this directly? If no, it goes here.
 
 **Format for Bug Fixes / Features & Enhancements / Internal & Performance entries:**
 
