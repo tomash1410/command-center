@@ -45,10 +45,28 @@ function minsToTime(mins: number): string {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
+function getLondonOffset(dateStr: string): string {
+  // Determine Europe/London UTC offset for the given date by comparing
+  // London local time to UTC — correctly handles GMT (+0000) vs BST (+0100).
+  const probe = new Date(`${dateStr}T12:00:00Z`);
+  const londonStr = probe.toLocaleString("en-GB", { timeZone: "Europe/London", hour12: false,
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  // en-GB format: "dd/mm/yyyy, hh:mm:ss"
+  const [datePart, timePart] = londonStr.split(", ");
+  const [dd, mm, yyyy] = datePart.split("/");
+  const londonLocal = new Date(`${yyyy}-${mm}-${dd}T${timePart}Z`);
+  const offsetMins = Math.round((londonLocal.getTime() - probe.getTime()) / 60000);
+  const sign = offsetMins >= 0 ? "+" : "-";
+  const abs = Math.abs(offsetMins);
+  return `${sign}${String(Math.floor(abs / 60)).padStart(2, "0")}${String(abs % 60).padStart(2, "0")}`;
+}
+
 function buildStartedIso(dateStr: string, startMins: number): string {
   const h = Math.floor(startMins / 60);
   const m = startMins % 60;
-  return `${dateStr}T${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:00.000+0000`;
+  const offset = getLondonOffset(dateStr);
+  return `${dateStr}T${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:00.000${offset}`;
 }
 
 function buildAdfComment(aliasName: string) {
@@ -78,6 +96,7 @@ export default function TimeLogTab() {
 
   const [logLoading, setLogLoading] = useState(false);
   const [logResults, setLogResults] = useState<{ issueKey: string; success: boolean; status: number; error?: string }[] | null>(null);
+  const [logMeta, setLogMeta] = useState<{ issueKey: string; category: string; hours: number }[]>([]);
 
   // --- Alias CRUD ---
   function startEdit(a: Alias) {
@@ -392,6 +411,8 @@ export default function TimeLogTab() {
                 onClick={async () => {
                   setLogLoading(true);
                   setLogResults(null);
+                  const meta = schedule.map((row) => ({ issueKey: row.ticket, category: row.category, hours: Number(row.hours) }));
+                  setLogMeta(meta);
                   const payload = schedule.map((row) => ({
                     issueKey: row.ticket,
                     timeSpentSeconds: row.durationSeconds,
@@ -420,23 +441,32 @@ export default function TimeLogTab() {
 
               {logResults && (
                 <div className="mt-4 flex flex-col gap-2">
-                  {logResults.map((r, i) => (
-                    <div key={i} className="flex items-center gap-3 rounded-md border border-zinc-800 bg-zinc-900 px-4 py-2.5 text-sm">
-                      {r.success ? (
-                        <>
-                          <span className="text-emerald-500">✓</span>
-                          <span className="font-mono text-zinc-200">{r.issueKey}</span>
+                  {logResults.map((r, i) => {
+                    const meta = logMeta[i];
+                    return (
+                      <div key={i} className="flex items-center gap-3 rounded-md border border-zinc-800 bg-zinc-900 px-4 py-2.5 text-sm">
+                        {r.success ? (
+                          <span className="text-emerald-500">✅</span>
+                        ) : (
+                          <span className="text-red-500">❌</span>
+                        )}
+                        <span className="font-mono text-zinc-200">{r.issueKey}</span>
+                        {meta && (
+                          <>
+                            <span className="text-zinc-600">·</span>
+                            <span className="text-zinc-400">{meta.category}</span>
+                            <span className="text-zinc-600">·</span>
+                            <span className="text-zinc-400">{meta.hours}h</span>
+                          </>
+                        )}
+                        {r.success ? (
                           <span className="text-zinc-500">logged</span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="text-red-500">✕</span>
-                          <span className="font-mono text-zinc-200">{r.issueKey}</span>
+                        ) : (
                           <span className="text-red-400">{r.error ?? `HTTP ${r.status}`}</span>
-                        </>
-                      )}
-                    </div>
-                  ))}
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
