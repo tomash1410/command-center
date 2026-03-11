@@ -4,6 +4,7 @@ import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import AutomationsTab from "@/components/AutomationsTab";
 import TodayTab from "@/components/TodayTab";
+import { useTheme } from "@/components/ThemeProvider";
 type Tab = "commands" | "today" | "todo";
 
 
@@ -67,6 +68,47 @@ function TodoTab() {
 }
 
 
+function HeaderControls() {
+  const { theme, toggle } = useTheme();
+  return (
+    <div className="flex items-center gap-2">
+      <button
+        onClick={toggle}
+        title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+        className="flex items-center gap-2 rounded-md border border-zinc-600 bg-zinc-800 px-3 py-1.5 text-sm font-medium text-zinc-200 transition-colors hover:border-zinc-400 hover:bg-zinc-700 hover:text-white"
+      >
+        {theme === "dark" ? (
+          <>
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="5" />
+              <path strokeLinecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+            </svg>
+            <span className="hidden sm:inline">Light</span>
+          </>
+        ) : (
+          <>
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+            </svg>
+            <span className="hidden sm:inline">Dark</span>
+          </>
+        )}
+      </button>
+      <form action="/api/auth/logout" method="post">
+        <button
+          type="submit"
+          className="flex items-center gap-2 rounded-md border border-zinc-600 bg-zinc-800 px-3 py-1.5 text-sm font-medium text-zinc-200 transition-colors hover:border-zinc-400 hover:bg-zinc-700 hover:text-white"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+          </svg>
+          <span className="hidden sm:inline">Log out</span>
+        </button>
+      </form>
+    </div>
+  );
+}
+
 const tabTitles: Record<Tab, string> = {
   commands: "Automations",
   today: "Today",
@@ -81,13 +123,16 @@ export default function Home() {
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       <main className="flex flex-1 flex-col overflow-hidden">
         <header className="shrink-0 border-b border-zinc-800 px-4 py-4 md:px-8 md:py-5">
-          <div className="flex items-baseline gap-3">
-            <h1 className="text-lg font-semibold text-zinc-100 md:text-xl">{tabTitles[activeTab]}</h1>
-            {activeTab === "today" && (
-              <span className="text-sm text-zinc-500">
-                {new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}
-              </span>
-            )}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-baseline gap-3">
+              <h1 className="text-lg font-semibold text-zinc-100 md:text-xl">{tabTitles[activeTab]}</h1>
+              {activeTab === "today" && (
+                <span className="text-sm text-zinc-500">
+                  {new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}
+                </span>
+              )}
+            </div>
+            <HeaderControls />
           </div>
         </header>
         {activeTab === "commands" ? (
